@@ -1,0 +1,36 @@
+{{- $lang := .Get "lang" | default "text" -}}
+<div class="custom-code-block-wrapper" data-lang="{{ $lang }}">
+  <div class="custom-code-toolbar">
+    <span class="code-lang-label">{{ upper $lang }}</span>
+    <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  {{ highlight (trim .Inner "\n\r") $lang "style=monokai,linenos=true" }}
+</div>
+<script>
+  function copyCode(btn) {
+    const wrapper = btn.closest(".custom-code-block-wrapper");
+    const codeElement = wrapper.querySelector("code");
+
+    let textToCopy = "";
+    const codeTable = wrapper.querySelector("table");
+
+    if (codeTable) {
+      const rows = codeTable.querySelectorAll("tr");
+      textToCopy = Array.from(rows)
+        .map((row) => {
+          const cells = row.querySelectorAll("td");
+          return cells.length > 1 ? cells[1].innerText : cells[0].innerText;
+        })
+        .join("");
+    } else {
+      const clone = codeElement.cloneNode(true);
+      clone.querySelectorAll(".ln, .lnt").forEach((num) => num.remove());
+      textToCopy = clone.innerText;
+    }
+
+    navigator.clipboard.writeText(textToCopy.trim());
+    const originalText = btn.innerHTML;
+    btn.textContent = "Copied";
+    setTimeout(() => (btn.innerHTML = originalText), 1500);
+  }
+</script>

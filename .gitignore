@@ -1,0 +1,15 @@
+# Hugo
+/public/
+/resources/
+/hugo_stats.json
+/themes/sans/exampleSite/public/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+
+

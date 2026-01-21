@@ -1,0 +1,15 @@
+
+<div class="footer-main">
+  Copyright {{ now.Year }}. All rights reserved.
+  <br />
+  Made with <a href="https://gohugo.io/" target="_blank">Hugo</a> and <a href="https://github.com/psugam/sans" target="_blank">Sans</a>
+ {{if .Site.Params.rss.showRSS}}
+ 
+ <div class="rss-icon-box">
+   <a href="/index.xml" target="_blank">
+     <img src="/rss-icon.svg" alt="">
+   </a>
+ </div>
+ {{end}}
+ 
+</div>

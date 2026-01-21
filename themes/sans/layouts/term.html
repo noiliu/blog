@@ -1,0 +1,31 @@
+{{ define "main" }}
+<div class="individual-term-box">
+  <h1>{{ .Title }}</h1>
+  
+{{ $cover := "" }}
+{{ $displayImage := true }}
+
+{{ with .Params.taxonomy_image }}
+  {{ $cover = $.Resources.GetMatch . }}
+
+{{ end }}
+
+{{ if $cover }}
+<div class="taxonomy_image">
+  <img src="{{ $cover.RelPermalink }}" alt="{{ .Title }}">
+</div>
+{{ end }}
+
+
+
+  {{ .Content }} 
+  {{ range .Pages }}
+     <div>
+<a href="{{ .RelPermalink }}" style="display:inline-block; margin-right:8px; font-size: large;">
+  {{ .LinkTitle }}
+</a>
+</div>
+  {{ end }}
+</div>
+
+{{ end }}

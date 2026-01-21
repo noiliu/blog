@@ -1,0 +1,11 @@
+<div class="site-header">
+<h1 class="site-title">
+       <a href="{{ .Site.BaseURL }}">{{.Site.Title}}</a>
+     </h1>
+<div class="menu-and-search">
+{{ partial "menu.html" (dict "menuID" "main" "page" .) }}
+{{ partial "search.html" . }}
+</div>
+
+</div>
+

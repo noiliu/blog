@@ -1,0 +1,10 @@
+{{/* layouts/shortcodes/color.html */}}
+<div style="color: {{ .Get "light" }};" class="color-text" data-light="{{ .Get "light" }}" data-dark="{{ .Get "dark" }}">
+  {{ .Inner }}
+</div>
+
+<style>
+  body.dark-mode.color-text[data-dark] {
+    color: attr(data-dark) !important;
+  }
+</style>

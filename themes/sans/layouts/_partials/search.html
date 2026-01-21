@@ -1,0 +1,161 @@
+
+{{if eq .Site.Params.theme.showSearchIcon true}}
+
+<!-- Search Icon Button -->
+<button class="search-icon-btn" id="searchIconBtn" aria-label="Search">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+</button>
+
+<!-- Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+    <div class="search-container">
+        <button class="search-close" id="searchClose" aria-label="Close search"></button>
+        
+        <div class="search-input-wrapper">
+            <div class="search-input-box">
+                <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+                <button class="clear-btn" id="clearBtn" aria-label="Clear search"></button>
+            </div>
+            <button class="search-btn" id="performSearch">Search</button>
+        </div>
+
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<!-- Hidden Pagefind UI -->
+<script>
+    // Force HTTPS for pagefind paths
+    const pagefindBasePath = "{{ absURL "pagefind/" }}".replace(/^http:/, 'https:');
+</script>
+<script src="{{ absURL "pagefind/pagefind-ui.js" }}"></script>
+<div id="search"></div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        // Initialize Pagefind with HTTPS URL
+        new PagefindUI({ 
+            element: "#search", 
+            showSubResults: true,
+            bundlePath: pagefindBasePath
+        });
+
+        // Get elements
+        const searchOverlay = document.getElementById('searchOverlay');
+        const searchIconBtn = document.getElementById('searchIconBtn');
+        const searchClose = document.getElementById('searchClose');
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const performSearchBtn = document.getElementById('performSearch');
+        const searchResults = document.getElementById('searchResults');
+
+        // Open search overlay
+        searchIconBtn.addEventListener('click', () => {
+            searchOverlay.classList.add('active');
+            searchInput.focus();
+        });
+
+        // Close search overlay
+        searchClose.addEventListener('click', closeSearch);
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                closeSearch();
+            }
+        });
+
+        function closeSearch() {
+            searchOverlay.classList.remove('active');
+            searchInput.value = '';
+            clearBtn.classList.remove('active');
+            searchResults.innerHTML = '';
+        }
+
+        // Show/hide clear button
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.length > 0) {
+                clearBtn.classList.add('active');
+            } else {
+                clearBtn.classList.remove('active');
+            }
+        });
+
+        // Clear search
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.remove('active');
+            searchResults.innerHTML = '';
+            searchInput.focus();
+        });
+
+        // Perform search on button click
+        performSearchBtn.addEventListener('click', performSearch);
+
+        // Perform search on Enter key
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                searchResults.innerHTML = '<div class="no-results">Please enter a search term</div>';
+                return;
+            }
+
+            searchResults.innerHTML = '<div class="no-results">Searching...</div>';
+
+            try {
+                // Use Pagefind search API with HTTPS URL
+                const pagefindJsPath = "{{ absURL "pagefind/pagefind.js" }}".replace(/^http:/, 'https:');
+                const pagefind = await import(pagefindJsPath);
+                const results = await pagefind.search(query);
+                
+                if (results.results.length === 0) {
+                    searchResults.innerHTML = '<div class="no-results">No results found</div>';
+                    return;
+                }
+
+                // Process results
+                const processedResults = await Promise.all(
+                    results.results.map(async (result) => {
+                        const data = await result.data();
+                        return {
+                            title: data.meta.title || 'Untitled',
+                            excerpt: data.excerpt,
+                            url: data.url
+                        };
+                    })
+                );
+
+                displayResults(processedResults);
+            } catch (error) {
+                console.error('Search error:', error);
+                searchResults.innerHTML = '<div class="no-results">An error occurred while searching</div>';
+            }
+        }
+
+        function displayResults(results) {
+            searchResults.innerHTML = results.map(result => `
+                <div class="result-item" onclick="window.location.href='${result.url}'">
+                    <div class="result-title">${result.title}</div>
+                    <div class="result-excerpt">${result.excerpt}</div>
+                    <div class="result-url">${result.url}</div>
+                </div>
+            `).join('');
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                closeSearch();
+            }
+        });
+    });
+</script>
+{{end}}
+
