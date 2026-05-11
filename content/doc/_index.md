@@ -2,6 +2,7 @@
 share: true
 dir: content/doc
 ---
+
 1. [Installation](/doc/installation)  
 2. [Homepage](/doc/homepage)  
 3. [Taxonomy](/doc/taxonomy/)  
@@ -14,4 +15,4 @@ dir: content/doc
 10. [Search](/doc/search)  
 11. [Comments](/doc/comments)  
 12. [Hosting](/doc/hosting-your-site)
-13. [System Architect](/doc/system-architect/System%20Architect)
+13. [system-architect](system-architect.md)
