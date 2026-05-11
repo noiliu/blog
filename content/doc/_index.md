@@ -15,4 +15,4 @@ dir: content/doc
 10. [Search](/doc/search)  
 11. [Comments](/doc/comments)  
 12. [Hosting](/doc/hosting-your-site)
-13. [system-architect](system-architect.md)
+13. [system-architect](/blog/doc/(system-architect))
