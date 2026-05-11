@@ -1,6 +1,7 @@
 ---
 share: true
 dir: content/doc
+description: 目录后面都是用相对路径
 ---
 
 1. [Installation](installation)  
