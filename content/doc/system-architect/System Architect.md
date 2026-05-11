@@ -1,6 +1,7 @@
 ---
 share: true
-dir: content/doc/system-architect
+title: index
+dir: content/doc/system-architect/
 ---
 
 ##### 零碎知识点 #不全且无序，看到啥记啥了
