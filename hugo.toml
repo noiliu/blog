@@ -2,9 +2,6 @@ baseURL = 'https://noiliu.github.io/blog/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
 theme = 'sans'
-# Turn on relative link support
-relativeURLs = true
-canonifyURLs = false
 
 [caches]
     [caches.images]
