@@ -14,4 +14,4 @@ dir: content/doc
 10. [Search](/doc/search)  
 11. [Comments](/doc/comments)  
 12. [Hosting](/doc/hosting-your-site)
-13. [System Architect](/doc/system-architect/System%20Architect)
+13. [System Architect](/doc/system-architect/System%20Architect.md)
