@@ -17,3 +17,4 @@ description: 目录后面都是用相对路径
 11. [Comments](comments)  
 12. [Hosting](hosting-your-site)  
 13. [system-architect]({{< relref "system-architect" >}})
+14. [redis-lua-serialization]({{< relref "redis-lua-serialization" >}})
