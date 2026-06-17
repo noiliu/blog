@@ -149,3 +149,72 @@ return 0
 **此时的差异：**
 
 加了 `tonumber` 后，报错的主体变了。报错信息会变成 `ERR Lua redis lib command arguments must be strings or integers`。这是因为 Lua 把转换失败的 `nil` 传给了 Redis。
+
+
+
+
+你现在遇到的不是 Lua 的问题，而是 **Spring `RedisTemplate` 执行 Lua 时对 ARGV 使用了默认 value serializer**，导致参数被 JSON/FastJson 序列化了。
+
+所以：
+
+- 传 `"86400"`，实际进 Lua 可能是 `"\"86400\""`，带 JSON 双引号。
+- 传 `Long`，实际可能是 `"86400L"`。
+- 传 `Integer` 正好没踩坑，但这只是碰巧，不是理想方案。
+
+更推荐的做法是：**执行 Lua 脚本时显式指定参数序列化器为 `StringRedisSerializer`**。
+
+示例：
+
+```
+DefaultRedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
+
+Long result = redisTemplate.execute(
+        script,
+        new StringRedisSerializer(),
+        new GenericToStringSerializer<>(Long.class),
+        Arrays.asList(stateKey, alarmKey),
+        String.valueOf(TimeUnit.DAYS.toSeconds(1))
+);
+```
+
+不过不同 Spring Data Redis 版本的重载方法略有差异，更常见写法是用这个重载：
+
+```
+Long result = redisTemplate.execute(
+        script,
+        RedisSerializer.string(),
+        RedisSerializer.java(),
+        Arrays.asList(stateKey, alarmKey),
+        String.valueOf(TimeUnit.DAYS.toSeconds(1))
+);
+```
+
+核心思想是：**ARGV 必须按普通字符串传给 Redis，不要走 JSON 序列化器。**
+
+Lua 里也可以不 `tonumber`：
+
+```
+redis.call('EXPIRE', KEYS[2], ARGV[1])
+```
+
+`EXPIRE` 本身可以接收字符串形式的整数参数，所以 TTL 这种参数没必要先转数字。
+
+如果数字很大，超过 `int`，也应该传字符串：
+
+```
+String ttlSeconds = String.valueOf(veryLargeLong);
+```
+
+Lua 中：
+
+```
+redis.call('EXPIRE', alarmKey, ARGV[1])
+```
+
+这样不会有 `int` 溢出问题，也不会有 `Long` 被序列化成 `86400L` 的问题。
+
+需要注意：如果你在 Lua 里要对大整数做数学运算或大小比较，再用 `tonumber` 就要小心。Redis Lua 的 number 有精度限制，特别大的整数可能丢精度。TTL 这种只是传给 Redis 命令的参数，最好保持字符串，不转数字。
+
+所以结论是：
+
+**不要靠传 `int` 规避序列化问题，应该显式指定 Lua 参数序列化方式，统一把 ARGV 当字符串传入；TTL 在 Lua 中直接传给 `EXPIRE`/`SET NX EX`，无需 `tonumber`。**
